@@ -89,7 +89,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
                     filter_by(guid=guid).\
                     update({'current': False}, False)
                 obj.save()
-            except Exception as e
+            except Exception as e:
                 # TODO: What should we do here?
                 log.error('Deleting package {0} with guid {1} failed'.format(package_id, guid))
 
