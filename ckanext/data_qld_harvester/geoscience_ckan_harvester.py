@@ -1,6 +1,10 @@
 import logging
+import ckan.plugins.toolkit as toolkit
 from ckanext.harvest.harvesters.ckanharvester import CKANHarvester
 from ckan.lib.helpers import json
+from ckan import model
+from ckanext.harvest.model import HarvestObject
+from ckanext.harvest.model import HarvestObjectExtra as HOExtra
 
 log = logging.getLogger(__name__)
 
@@ -51,3 +55,42 @@ class GeoScienceCKANHarvester(CKANHarvester):
         package_dict.pop('resources', [])
 
         return package_dict
+
+    def gather_stage(self, harvest_job):
+        guids_in_source = super(GeoScienceCKANHarvester, self).gather_stage(harvest_job)
+
+        # Get the previous guids for this source
+        query = model.Session.query(HarvestObject.guid, HarvestObject.package_id).\
+                                    filter(HarvestObject.current==True).\
+                                    filter(HarvestObject.harvest_source_id==harvest_job.source.id)
+        guid_to_package_id = {}
+
+        for guid, package_id in query:
+            guid_to_package_id[guid] = package_id
+
+        guids_in_db = set(guid_to_package_id.keys())
+
+        # Check datasets that need to be deleted
+        guids_to_delete = set(guids_in_db) - set(guids_in_source)
+        for guid in guids_to_delete:
+            # Delete package
+            package_id = guid_to_package_id[guid]
+            context = {'model': model, 'session': model.Session,
+                    'user': self._get_user_name()}
+            try:
+                toolkit.get_action('package_delete')(context, {'id': package_id})
+                log.info('Deleted package {0} with guid {1}'.format(package_id, guid))
+
+                obj = HarvestObject(guid=guid, job=harvest_job,
+                                    package_id=guid_to_package_id[guid],
+                                    extras=[HOExtra(key='status', value='delete')])
+
+                model.Session.query(HarvestObject).\
+                    filter_by(guid=guid).\
+                    update({'current': False}, False)
+                obj.save()
+            except Exception as e
+                # TODO: What should we do here?
+                log.error('Deleting package {0} with guid {1} failed'.format(package_id, guid))
+
+        return guids_in_source
