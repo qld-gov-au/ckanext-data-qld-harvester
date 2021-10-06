@@ -139,7 +139,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         #     package_dict['borehole_class'] = extras.get('borehole_class')
         #     package_dict['borehole_purpose'] = extras.get('borehole_purpose')
 
-        package_dict.pop('extras')
+        package_dict.pop('extras', []) 
         package_dict.pop('resources', [])
 
         return package_dict
