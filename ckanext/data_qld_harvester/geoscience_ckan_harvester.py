@@ -46,7 +46,6 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
         try:
             config_obj = json.loads(config)
-            # TODO Validation of values required for harvest
 
             if 'default_groups' in config_obj:
                 if not isinstance(config_obj['default_groups'], list):
@@ -59,7 +58,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
                                      'names/ids (i.e. strings)')
 
                 # Check if default groups exist
-                context = {'model': model, 'user': toolkit.c.user}
+                context = {'model': model, 'user': toolkit.g.user}
                 config_obj['default_group_dicts'] = []
                 for group_name_or_id in config_obj['default_groups']:
                     try:
@@ -68,9 +67,9 @@ class GeoScienceCKANHarvester(CKANHarvester):
                         # save the dict to the config object, as we'll need it
                         # in the import_stage of every dataset
                         config_obj['default_group_dicts'].append(group)
-                    except toolkit.NotFound as e:
+                    except toolkit.ObjectNotFound as e:
                         raise ValueError('Default group not found')
-                
+
                 config = json.dumps(config_obj)
 
             if 'dataset_type' not in config_obj:
@@ -109,21 +108,21 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
         self._set_config(harvest_object.job.source.config)
 
-        # TODO get default values from harvest config
         package_dict['type'] = self.config.get('dataset_type')
-        package_dict['update_frequency'] = self.config.get('update_frequency')
-        if not package_dict.get('author_email'):
-            package_dict['author_email'] = self.config.get('author_email')
+        package_dict['url'] = '{0}/dataset/{1}'.format(harvest_object.source.url.rstrip('/'), package_dict.get('name'))
+        package_dict['notes'] = 'URL: {0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', ''))
 
+        if not package_dict.get('license_id'):
+            package_dict['license_id'] = self.config.get('license_id')
         if not package_dict.get('version'):
             package_dict['version'] = self.config.get('version')
-        package_dict['data_driven_application'] = self.config.get('data_driven_application')
+
+        package_dict['author_email'] = package_dict.get('extra:contact_uri') or self.config.get('author_email')
+
         package_dict['security_classification'] = self.config.get('security_classification')
+        package_dict['data_driven_application'] = self.config.get('data_driven_application')
+        package_dict['update_frequency'] = self.config.get('update_frequency')
         package_dict['de_identified_data'] = self.config.get('de_identified_data')
-        package_dict['license_id'] = self.config.get('license_id')
-        package_dict['url'] = '{0}/dataset/{1}'.format(harvest_object.source.url.rstrip('/'), package_dict.get('name'))
-        # TODO Should the URL be injected into the template instead? Some notes are empty which are required so this fixes that
-        package_dict['notes'] = 'URL:{0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', ''))
         package_dict['groups'] = self.config.get('default_group_dicts')
 
         # extras = package_dict.get('extras', [])
@@ -139,21 +138,21 @@ class GeoScienceCKANHarvester(CKANHarvester):
         #     package_dict['borehole_class'] = extras.get('borehole_class')
         #     package_dict['borehole_purpose'] = extras.get('borehole_purpose')
 
-        package_dict.pop('extras', []) 
+        package_dict.pop('extras', [])
         package_dict.pop('resources', [])
 
         return package_dict
 
     def gather_stage(self, harvest_job):
-        
+
         self._set_config(harvest_job.source.config)
 
         guids_in_source = super(GeoScienceCKANHarvester, self).gather_stage(harvest_job)
 
         # Get the previous guids for this source
         query = model.Session.query(HarvestObject.guid, HarvestObject.package_id).\
-                                        filter(HarvestObject.current==True).\
-                                        filter(HarvestObject.harvest_source_id==harvest_job.source.id)
+            filter(HarvestObject.current == True).\
+            filter(HarvestObject.harvest_source_id == harvest_job.source.id)
 
         guid_to_package_id = {guid: package_id for guid, package_id in query}
 
