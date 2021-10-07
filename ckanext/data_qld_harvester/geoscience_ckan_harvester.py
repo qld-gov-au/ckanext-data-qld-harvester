@@ -110,7 +110,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
         package_dict['type'] = self.config.get('dataset_type')
         package_dict['url'] = '{0}/dataset/{1}'.format(harvest_object.source.url.rstrip('/'), package_dict.get('name'))
-        package_dict['notes'] = 'URL: {0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', ''))
+        package_dict['notes'] = u'URL: {0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', ''))
 
         if not package_dict.get('license_id'):
             package_dict['license_id'] = self.config.get('license_id')
