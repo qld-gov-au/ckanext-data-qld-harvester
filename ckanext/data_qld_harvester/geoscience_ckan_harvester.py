@@ -1,16 +1,14 @@
+import datetime
 import logging
+import six
+import urllib
 import ckan.plugins.toolkit as toolkit
-from ckanext.harvest.harvesters.ckanharvester import CKANHarvester
+
+from ckanext.harvest.harvesters.ckanharvester import CKANHarvester, ContentFetchError, SearchError
 from ckan.lib.helpers import json
 from ckan import model
 from ckanext.harvest.model import HarvestObject
-from ckanext.harvest.model import HarvestObjectExtra as HOExtra
 
-import six
-
-
-import datetime
-import urllib
 
 log = logging.getLogger(__name__)
 
@@ -20,9 +18,6 @@ class GeoScienceCKANHarvester(CKANHarvester):
     A Harvester for CKAN portal Geoscience
     '''
     config = None
-
-    api_version = 2
-    action_api_version = 3
 
     def info(self):
         return {
@@ -112,50 +107,38 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
         self._set_config(harvest_object.job.source.config)
 
-        package_dict['type'] = self.config.get('dataset_type')
+        # Set dataset url back to source
         package_dict['url'] = '{0}/dataset/{1}'.format(harvest_object.source.url.rstrip('/'), package_dict.get('name'))
         package_dict['notes'] = u'URL: {0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', ''))
 
+        #  Set default values from harvest config
         if not package_dict.get('license_id'):
             package_dict['license_id'] = self.config.get('license_id')
         if not package_dict.get('version'):
             package_dict['version'] = self.config.get('version')
-
         package_dict['author_email'] = package_dict.get('extra:contact_uri') or self.config.get('author_email')
 
+        package_dict['type'] = self.config.get('dataset_type')
         package_dict['security_classification'] = self.config.get('security_classification')
         package_dict['data_driven_application'] = self.config.get('data_driven_application')
         package_dict['update_frequency'] = self.config.get('update_frequency')
         package_dict['de_identified_data'] = self.config.get('de_identified_data')
         package_dict['groups'] = self.config.get('default_group_dicts')
 
-        # extras = package_dict.get('extras', [])
-        # if extras:
-        #     package_dict['extra:access_rights'] = extras.get('extra:access_rights')
-        #     package_dict['extra:theme'] = extras.get('extra:theme')
-        #     package_dict['survey_type'] = extras.get('survey_type')
-        #     package_dict['survey_method'] = extras.get('survey_method')
-        #     package_dict['survey_resolution'] = extras.get('survey_resolution')
-        #     package_dict['earth_science_data_category'] = extras.get('earth_science_data_category')
-        #     package_dict['status'] = extras.get('status')
-        #     package_dict['borehole_sub_purpose'] = extras.get('borehole_sub_purpose')
-        #     package_dict['borehole_class'] = extras.get('borehole_class')
-        #     package_dict['borehole_purpose'] = extras.get('borehole_purpose')
-
+        # Remove metadata we do not want to harvest
         package_dict.pop('extras', [])
         package_dict.pop('resources', [])
 
         return package_dict
 
     def gather_stage(self, harvest_job):
-
-        self._set_config(harvest_job.source.config)
-
-        guids_in_source = self._gather_stage(harvest_job)
-
-        return guids_in_source
-
-    def _gather_stage(self, harvest_job):
+        '''
+            This is copied from the default CKANHarvester 'gather_stage' https://github.com/ckan/ckanext-harvest/blob/3793480a91b9eedc13c34f055e2a94aca5c7e045/ckanext/harvest/harvesters/ckanharvester.py#L182
+            It has one small modification, which is to move the creation of the harvest objects from the end of the 'gather_stage' https://github.com/ckan/ckanext-harvest/blob/3793480a91b9eedc13c34f055e2a94aca5c7e045/ckanext/harvest/harvesters/ckanharvester.py#L268
+            This has now been moved into the end of the method '_search_for_datasets', once its retrieved the dataset results it will now create the harvest objects '_create_harvest_objects'
+            The default behaviour was to retrieve all the datasets from the source and store them in a list in memory before creating the harvest objects which caused memory issues when there was a large amount of datasets retrieved eg 100,000+
+            The solution is to instead of addding the datasets to a list as it pages through the API call, it will now create the harvest objects straight away once the datasets have been retrieved so there are no memory issues.
+        '''
         log.debug('In CKANHarvester gather_stage (%s)',
                   harvest_job.source.url)
         toolkit.requires_ckan_version(min_version='2.0')
@@ -311,7 +294,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
                                   if p['id'] not in duplicate_ids]
             pkg_ids |= ids_in_page
 
-            # pkg_dicts.extend(pkg_dicts_page)
+            # DataQLD Update
             object_ids.extend(self._create_harvest_objects(pkg_dicts_page, harvest_job))
 
             if len(pkg_dicts_page) == 0:
@@ -345,19 +328,3 @@ class GeoScienceCKANHarvester(CKANHarvester):
             return object_ids
         except Exception as e:
             self._save_gather_error('%r' % e.message, harvest_job)
-
-
-class ContentFetchError(Exception):
-    pass
-
-
-class ContentNotFoundError(ContentFetchError):
-    pass
-
-
-class RemoteResourceError(Exception):
-    pass
-
-
-class SearchError(Exception):
-    pass
