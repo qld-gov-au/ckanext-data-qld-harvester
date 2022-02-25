@@ -36,7 +36,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
     # IFacets
     def dataset_facets(self, facets_dict, package_type):
         new_facets_dict = OrderedDict()
-        new_facets_dict['dataset_type'] = plugins.toolkit._('Linked data sources')
+        new_facets_dict['dataset_type'] = plugins.toolkit._('Data Portals')
 
         return OrderedDict(list(new_facets_dict.items()) + list(facets_dict.items()))
 
