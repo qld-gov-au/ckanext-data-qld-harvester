@@ -2,23 +2,45 @@ import datetime
 import logging
 import six
 import urllib
-import ckan.plugins.toolkit as toolkit
+import ckan.plugins as plugins
 
 from ckanext.harvest.harvesters.ckanharvester import CKANHarvester, ContentFetchError, SearchError
 from ckan.lib.helpers import json
 from ckan import model
 from ckanext.harvest.model import HarvestObject
+from ckan.common import OrderedDict
 
 
 log = logging.getLogger(__name__)
+toolkit = plugins.toolkit
 
 
 class GeoScienceCKANHarvester(CKANHarvester):
     '''
     A Harvester for CKAN portal Geoscience
     '''
+    plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.IFacets, inherit=True)
+
     config = None
 
+    # IPackageController
+    def before_index(self, index_dict):
+        if index_dict.get('dataset_type') == 'dataset' :
+            index_dict['dataset_type'] = 'data.qld.gov.au'
+        elif index_dict.get('dataset_type') == 'geoscience' :
+            index_dict['dataset_type'] = 'geoscience.data.qld.gov.au'
+
+        return index_dict
+    
+    # IFacets
+    def dataset_facets(self, facets_dict, package_type):
+        new_facets_dict = OrderedDict()
+        new_facets_dict['dataset_type'] = plugins.toolkit._('Linked data sources')
+
+        return OrderedDict(list(new_facets_dict.items()) + list(facets_dict.items()))
+
+    # CKANHarvester
     def info(self):
         return {
             'name': 'geoscience_ckan_harvester',
