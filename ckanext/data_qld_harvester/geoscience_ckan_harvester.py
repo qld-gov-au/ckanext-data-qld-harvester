@@ -134,13 +134,12 @@ class GeoScienceCKANHarvester(CKANHarvester):
         package_dict['notes'] = u'URL: {0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', ''))
 
         #  Set default values from harvest config
-        if not package_dict.get('license_id'):
-            package_dict['license_id'] = self.config.get('license_id')
         if not package_dict.get('version'):
             package_dict['version'] = self.config.get('version')
         package_dict['author_email'] = package_dict.get('extra:contact_uri') or self.config.get('author_email')
 
         package_dict['type'] = self.config.get('dataset_type')
+        package_dict['license_id'] = self.config.get('license_id')
         package_dict['security_classification'] = self.config.get('security_classification')
         package_dict['data_driven_application'] = self.config.get('data_driven_application')
         package_dict['update_frequency'] = self.config.get('update_frequency')
@@ -327,6 +326,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         return object_ids
 
     def _create_harvest_objects(self, pkg_dicts, harvest_job):
+         # Create harvest objects for each dataset
         object_ids = []
         try:
             package_ids = set()
