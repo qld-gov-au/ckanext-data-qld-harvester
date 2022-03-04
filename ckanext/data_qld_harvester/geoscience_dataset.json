@@ -216,52 +216,62 @@
     {
       "field_name": "extra:access_rights",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "extra:theme",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "survey_type",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "survey_method",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "survey_resolution",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "earth_science_data_category",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "status",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "borehole_sub_purpose",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "borehole_class",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     },
     {
       "field_name": "borehole_purpose",
       "form_snippet": null,
-      "display_snippet": null
+      "display_snippet": null,
+      "validators": "ignore_missing unicode_safe"
     }
   ]
 }
