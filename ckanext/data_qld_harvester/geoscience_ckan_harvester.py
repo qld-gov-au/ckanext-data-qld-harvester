@@ -155,7 +155,12 @@ class GeoScienceCKANHarvester(CKANHarvester):
         data_last_updated = package_dict.get('data_last_updated')
         data_last_updated = toolkit.get_validator('isodate')(data_last_updated, {}) if data_last_updated else None
         for resource in package_dict.get('resources', []):
-            last_modified = toolkit.get_validator('isodate')(resource.get('last_modified') or resource.get('metadata_modified'), {})
+            try:
+                resource_last_modifed = resource.get('last_modified') or resource.get('metadata_modified')
+                last_modified = toolkit.get_validator('isodate')(resource_last_modifed, {})
+            except toolkit.Invalid as ex:
+                log.warning('Invalid resource {0} date format {1} for harvest object {2} '.format(resource.get('id'), resource_last_modifed, harvest_object.id))
+                continue
             if data_last_updated is None or last_modified > data_last_updated:
                 data_last_updated = last_modified
         package_dict['data_last_updated'] = data_last_updated.isoformat() if isinstance(data_last_updated, datetime.datetime) else None
@@ -269,7 +274,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         Deals with paging to return all the results, not just the first page.
         '''
         base_search_url = remote_ckan_base_url + self._get_search_api_offset()
-        params = {'rows': '1000', 'start': '0'}
+        params = {'rows': '100', 'start': '0'}
         # There is the worry that datasets will be changed whilst we are paging
         # through them.
         # * In SOLR 4.7 there is a cursor, but not using that yet
@@ -331,7 +336,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
             # DataQLD Update
             object_ids.extend(self._create_harvest_objects(pkg_dicts_page, harvest_job))
-
+            break
             if len(pkg_dicts_page) == 0:
                 break
 
