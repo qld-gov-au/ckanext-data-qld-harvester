@@ -21,8 +21,13 @@ class GeoScienceCKANHarvester(CKANHarvester):
     '''
     plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IFacets, inherit=True)
+    plugins.implements(plugins.IConfigurer)
 
     config = None
+
+    # IConfigurer
+    def update_config(self, config):
+        toolkit.add_template_directory(config, 'templates')
 
     # IPackageController
     def before_index(self, index_dict):
