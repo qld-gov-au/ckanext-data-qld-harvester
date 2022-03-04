@@ -31,13 +31,13 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
     # IPackageController
     def before_index(self, index_dict):
-        if index_dict.get('dataset_type') == 'dataset' :
+        if index_dict.get('dataset_type') == 'dataset':
             index_dict['dataset_type'] = 'data.qld.gov.au'
-        elif index_dict.get('dataset_type') == 'geoscience' :
+        elif index_dict.get('dataset_type') == 'geoscience':
             index_dict['dataset_type'] = 'geoscience.data.qld.gov.au'
 
         return index_dict
-    
+
     # IFacets
     def dataset_facets(self, facets_dict, package_type):
         new_facets_dict = OrderedDict()
@@ -136,7 +136,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
         # Set dataset url back to source
         package_dict['url'] = '{0}/dataset/{1}'.format(harvest_object.source.url.rstrip('/'), package_dict.get('name'))
-        package_dict['notes'] = u'URL: {0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', ''))
+        package_dict['notes'] = u'URL: {0}\r\n\r\n{1}'.format(package_dict.get('url'), package_dict.get('notes', '') or '')
 
         #  Set default values from harvest config
         if not package_dict.get('version'):
@@ -150,6 +150,15 @@ class GeoScienceCKANHarvester(CKANHarvester):
         package_dict['update_frequency'] = self.config.get('update_frequency')
         package_dict['de_identified_data'] = self.config.get('de_identified_data')
         package_dict['groups'] = self.config.get('default_group_dicts')
+
+        # Loop through the resources to compare data_last_updated field with last_modified
+        data_last_updated = package_dict.get('data_last_updated')
+        data_last_updated = toolkit.get_validator('isodate')(data_last_updated, {}) if data_last_updated else None
+        for resource in package_dict.get('resources', []):
+            last_modified = toolkit.get_validator('isodate')(resource.get('last_modified') or resource.get('metadata_modified'), {})
+            if data_last_updated is None or last_modified > data_last_updated:
+                data_last_updated = last_modified
+        package_dict['data_last_updated'] = data_last_updated.isoformat() if isinstance(data_last_updated, datetime.datetime) else None
 
         # Remove metadata we do not want to harvest
         package_dict.pop('extras', [])
@@ -331,7 +340,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         return object_ids
 
     def _create_harvest_objects(self, pkg_dicts, harvest_job):
-         # Create harvest objects for each dataset
+        # Create harvest objects for each dataset
         object_ids = []
         try:
             package_ids = set()

@@ -45,9 +45,7 @@
       "field_name": "data_last_updated",
       "label": "Data last updated",
       "form_snippet": null,
-      "display_snippet": null,
-      "create_validators": "ignore",
-      "validators": "ignore_empty"
+      "display_snippet": "date.html"
     },
     {
       "field_name": "url",
