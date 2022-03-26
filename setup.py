@@ -80,7 +80,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points='''
         [ckan.plugins]
-        dataqld_ckan_harvester=ckanext.data_qld_harvester.plugin:DataQldCKANHarvester
+        geoscience_ckan_harvester=ckanext.data_qld_harvester.geoscience_ckan_harvester:GeoScienceCKANHarvester
 
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan
