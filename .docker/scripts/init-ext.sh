@@ -7,7 +7,7 @@ set -e
 if [ "$VENV_DIR" != "" ]; then
   . ${VENV_DIR}/bin/activate
 fi
-pip install -r "requirements-dev.txt"
+pip install -r "dev-requirements.txt"
 pip install -r "requirements.txt"
 pip install -r "$VENV_DIR/src/ckanext-archiver/requirements.txt"
 pip install -r "$VENV_DIR/src/ckanext-dcat/requirements.txt"
