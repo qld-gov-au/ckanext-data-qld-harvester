@@ -96,7 +96,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
                         # save the dict to the config object, as we'll need it
                         # in the import_stage of every dataset
                         config_obj['default_group_dicts'].append(group)
-                    except toolkit.ObjectNotFound as e:
+                    except toolkit.ObjectNotFound:
                         raise ValueError('Default group not found')
 
                 config = json.dumps(config_obj)
@@ -159,10 +159,11 @@ class GeoScienceCKANHarvester(CKANHarvester):
         data_last_updated = toolkit.get_validator('isodate')(data_last_updated, {}) if data_last_updated else None
         for resource in package_dict.get('resources', []):
             try:
-                resource_last_modifed = resource.get('last_modified') or resource.get('metadata_modified')
-                last_modified = toolkit.get_validator('isodate')(resource_last_modifed, {})
-            except toolkit.Invalid as ex:
-                log.warning('Invalid resource {0} date format {1} for harvest object {2} '.format(resource.get('id'), resource_last_modifed, harvest_object.id))
+                resource_last_modified = resource.get('last_modified') or resource.get('metadata_modified')
+                last_modified = toolkit.get_validator('isodate')(resource_last_modified, {})
+            except toolkit.Invalid:
+                log.warning('Invalid resource %s date format %s for harvest object %s ',
+                            resource.get('id'), resource_last_modified, harvest_object.id)
                 continue
             if data_last_updated is None or last_modified > data_last_updated:
                 data_last_updated = last_modified
@@ -216,8 +217,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         # modified since the last completely successful harvest.
         last_error_free_job = self.last_error_free_job(harvest_job)
         log.debug('Last error-free job: %r', last_error_free_job)
-        if (last_error_free_job and
-                not self.config.get('force_all', False)):
+        if (last_error_free_job and not self.config.get('force_all', False)):
             get_all_packages = False
 
             # Request only the datasets modified since
