@@ -11,7 +11,7 @@
               {%- if facets.translated_fields and facets.translated_fields.has_key((field,value)) -%}
                 {{ facets.translated_fields[(field,value)] }}
               {%- else -%}
-                {# change is inject function filter instead h.list_dict_filter #}}
+                {# change is inject function filter instead h.list_dict_filter #}
                 {{ h.harvester_data_qld_geoscience_custom_label_function_list_dict_filter(search_facets_items, field, 'name', 'display_name', value) }}
               {%- endif %}
               <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="fa fa-times"></i></a>
