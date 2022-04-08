@@ -1,5 +1,10 @@
 {% if pkg.type == 'geoscience' %}
 <!-- No resources for geoscience datasets -->
 {% else %}
+<section id="dataset-resources" class="resources">
+  <h2>{{ _('Data and Resources') }}</h2>
+  {% block resource_list %}
     {{ super() }}
+  {% endblock %}
+</section>
 {% endif %}
