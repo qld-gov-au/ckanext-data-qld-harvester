@@ -369,5 +369,5 @@ class GeoScienceCKANHarvester(CKANHarvester):
     # ITemplateHelpers
     def get_helpers(self):
         return {
-            'havester_data_qld_geoscience_custom_label_function': helpers.custom_label_function,
+            'harvester_data_qld_geoscience_custom_label_function': helpers.custom_label_function,
         }
