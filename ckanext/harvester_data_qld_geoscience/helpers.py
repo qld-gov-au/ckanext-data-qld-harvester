@@ -11,6 +11,7 @@ def custom_label_function(facet_field, facet_item):
 
     return facet_item['display_name']
 
+
 # based on
 # @core_helper
 # def list_dict_filter(list_, search_field, output_field, value):
