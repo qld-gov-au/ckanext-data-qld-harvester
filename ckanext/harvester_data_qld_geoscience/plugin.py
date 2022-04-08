@@ -4,6 +4,8 @@ import six
 import urllib
 import ckan.plugins as plugins
 
+import helpers
+
 from ckanext.harvest.harvesters.ckanharvester import CKANHarvester, ContentFetchError, SearchError
 from ckan.lib.helpers import json
 from ckan import model
@@ -22,8 +24,8 @@ class GeoScienceCKANHarvester(CKANHarvester):
     '''
     A Harvester for CKAN portal Geoscience
     '''
-    plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IFacets, inherit=True)
+    plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IConfigurer)
 
     config = None
@@ -31,15 +33,6 @@ class GeoScienceCKANHarvester(CKANHarvester):
     # IConfigurer
     def update_config(self, config):
         toolkit.add_template_directory(config, 'templates')
-
-    # IPackageController
-    def before_index(self, index_dict):
-        if index_dict.get('dataset_type') == 'dataset':
-            index_dict['dataset_type'] = 'data.qld.gov.au'
-        elif index_dict.get('dataset_type') == 'geoscience':
-            index_dict['dataset_type'] = 'geoscience.data.qld.gov.au'
-
-        return index_dict
 
     # IFacets
     def dataset_facets(self, facets_dict, package_type):
@@ -372,3 +365,9 @@ class GeoScienceCKANHarvester(CKANHarvester):
             return object_ids
         except Exception as e:
             self._save_gather_error('%r' % e.message, harvest_job)
+
+    # ITemplateHelpers
+    def get_helpers(self):
+        return {
+            'havester_data_qld_geoscience_custom_label_function': helpers.custom_label_function,
+        }
