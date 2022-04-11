@@ -4,11 +4,16 @@ import six
 import urllib
 import ckan.plugins as plugins
 
+import helpers
+
 from ckanext.harvest.harvesters.ckanharvester import CKANHarvester, ContentFetchError, SearchError
 from ckan.lib.helpers import json
 from ckan import model
 from ckanext.harvest.model import HarvestObject
-from ckan.common import OrderedDict
+try:
+    from collections import OrderedDict  # from python 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 
 log = logging.getLogger(__name__)
@@ -19,8 +24,8 @@ class GeoScienceCKANHarvester(CKANHarvester):
     '''
     A Harvester for CKAN portal Geoscience
     '''
-    plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IFacets, inherit=True)
+    plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IConfigurer)
 
     config = None
@@ -28,15 +33,6 @@ class GeoScienceCKANHarvester(CKANHarvester):
     # IConfigurer
     def update_config(self, config):
         toolkit.add_template_directory(config, 'templates')
-
-    # IPackageController
-    def before_index(self, index_dict):
-        if index_dict.get('dataset_type') == 'dataset':
-            index_dict['dataset_type'] = 'data.qld.gov.au'
-        elif index_dict.get('dataset_type') == 'geoscience':
-            index_dict['dataset_type'] = 'geoscience.data.qld.gov.au'
-
-        return index_dict
 
     # IFacets
     def dataset_facets(self, facets_dict, package_type):
@@ -93,7 +89,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
                         # save the dict to the config object, as we'll need it
                         # in the import_stage of every dataset
                         config_obj['default_group_dicts'].append(group)
-                    except toolkit.ObjectNotFound as e:
+                    except toolkit.ObjectNotFound:
                         raise ValueError('Default group not found')
 
                 config = json.dumps(config_obj)
@@ -156,10 +152,11 @@ class GeoScienceCKANHarvester(CKANHarvester):
         data_last_updated = toolkit.get_validator('isodate')(data_last_updated, {}) if data_last_updated else None
         for resource in package_dict.get('resources', []):
             try:
-                resource_last_modifed = resource.get('last_modified') or resource.get('metadata_modified')
-                last_modified = toolkit.get_validator('isodate')(resource_last_modifed, {})
-            except toolkit.Invalid as ex:
-                log.warning('Invalid resource {0} date format {1} for harvest object {2} '.format(resource.get('id'), resource_last_modifed, harvest_object.id))
+                resource_last_modified = resource.get('last_modified') or resource.get('metadata_modified')
+                last_modified = toolkit.get_validator('isodate')(resource_last_modified, {})
+            except toolkit.Invalid:
+                log.warning('Invalid resource %s date format %s for harvest object %s ',
+                            resource.get('id'), resource_last_modified, harvest_object.id)
                 continue
             if data_last_updated is None or last_modified > data_last_updated:
                 data_last_updated = last_modified
@@ -213,8 +210,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         # modified since the last completely successful harvest.
         last_error_free_job = self.last_error_free_job(harvest_job)
         log.debug('Last error-free job: %r', last_error_free_job)
-        if (last_error_free_job and
-                not self.config.get('force_all', False)):
+        if (last_error_free_job and not self.config.get('force_all', False)):
             get_all_packages = False
 
             # Request only the datasets modified since
@@ -369,3 +365,10 @@ class GeoScienceCKANHarvester(CKANHarvester):
             return object_ids
         except Exception as e:
             self._save_gather_error('%r' % e.message, harvest_job)
+
+    # ITemplateHelpers
+    def get_helpers(self):
+        return {
+            'harvester_data_qld_geoscience_custom_label_function': helpers.custom_label_function,
+            'harvester_data_qld_geoscience_custom_label_function_list_dict_filter': helpers.custom_label_function_list_dict_filter,
+        }

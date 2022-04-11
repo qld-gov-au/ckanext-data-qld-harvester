@@ -15,10 +15,17 @@ env/
 build/
 develop-eggs/
 dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
 sdist/
+var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.eggs
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -38,5 +45,21 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
 # Sphinx documentation
 docs/_build/
+.env.local
+screenshots
+!/test/screenshots/.gitkeep
+
+# PyBuilder
+target/
+
+#Intellij
+.idea
