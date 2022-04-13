@@ -2,7 +2,7 @@
 
 from flask import Blueprint
 
-from ckan.views.package import read
+from ckan.views.dataset import read
 
 blueprint = Blueprint(
     u'geoscience',
