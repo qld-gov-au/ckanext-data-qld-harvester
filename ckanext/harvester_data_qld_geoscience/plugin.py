@@ -272,7 +272,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         Deals with paging to return all the results, not just the first page.
         '''
         base_search_url = remote_ckan_base_url + self._get_search_api_offset()
-        params = {'rows': '100', 'start': '0'}
+        params = {'rows': '1000', 'start': '0'}
         # There is the worry that datasets will be changed whilst we are paging
         # through them.
         # * In SOLR 4.7 there is a cursor, but not using that yet
