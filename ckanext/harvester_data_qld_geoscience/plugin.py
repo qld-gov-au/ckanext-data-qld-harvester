@@ -378,7 +378,22 @@ class GeoScienceCKANHarvester(CKANHarvester):
     # IRoutes
 
     def before_map(self, route_map):
-        route_map.connect(
-            'geoscience_read', '/dataset/{id}',
-            controller='package', action='read', ckan_icon='sitemap')
+        from routes.mapper import SubMapper
+
+        with SubMapper(route_map, controller='package') as mapper:
+            # This is a pain, but re-assigning the dataset_read route using `before_map`
+            # appears to affect these routes, so we need to replicate them here
+            mapper.connect('search', '/dataset', action='search', highlight_actions='index search')
+            mapper.connect('dataset_new', '/dataset/new', action='new')
+            mapper.connect(
+                '/dataset/{action}',
+                requirements=dict(action='|'.join([
+                    'list',
+                    'autocomplete',
+                    'search'
+                ])))
+            mapper.connect('dataset_read', '/dataset/{id}',
+                           action='read', ckan_icon='sitemap')
+            mapper.connect('geoscience_read', '/dataset/{id}',
+                           action='read', ckan_icon='sitemap')
         return route_map
