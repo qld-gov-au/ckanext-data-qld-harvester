@@ -3,6 +3,7 @@ import logging
 import six
 import urllib
 import ckan.plugins as plugins
+import ckantoolkit as toolkit
 
 import helpers
 
@@ -17,7 +18,6 @@ except ImportError:
 
 
 log = logging.getLogger(__name__)
-toolkit = plugins.toolkit
 
 
 class GeoScienceCKANHarvester(CKANHarvester):
@@ -27,6 +27,8 @@ class GeoScienceCKANHarvester(CKANHarvester):
     plugins.implements(plugins.IFacets, inherit=True)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IConfigurer)
+    if toolkit.check_ckan_version(max_version='2.8.99'):
+        plugins.implements(plugins.IRoutes, inherit=True)
 
     config = None
 
@@ -372,3 +374,11 @@ class GeoScienceCKANHarvester(CKANHarvester):
             'harvester_data_qld_geoscience_custom_label_function': helpers.custom_label_function,
             'harvester_data_qld_geoscience_custom_label_function_list_dict_filter': helpers.custom_label_function_list_dict_filter,
         }
+
+    # IRoutes
+
+    def before_map(self, route_map):
+        route_map.connect(
+            'geoscience_read', '/dataset/{id}',
+            controller='package', action='read', ckan_icon='sitemap')
+        return route_map
