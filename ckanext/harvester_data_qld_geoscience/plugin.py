@@ -383,6 +383,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         route_map.connect(
             'geoscience_read', '/dataset/{id}',
             controller='package', action='read', ckan_icon='sitemap')
+        return route_map
 
     # IBlueprint
 
