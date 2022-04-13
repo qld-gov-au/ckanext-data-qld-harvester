@@ -27,9 +27,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
     plugins.implements(plugins.IFacets, inherit=True)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IConfigurer)
-    if toolkit.check_ckan_version('2.9'):
-        plugins.implements(plugins.IBlueprint)
-    else:
+    if toolkit.check_ckan_version(max_version='2.8.99'):
         plugins.implements(plugins.IRoutes, inherit=True)
 
     config = None
@@ -384,9 +382,3 @@ class GeoScienceCKANHarvester(CKANHarvester):
             'geoscience_read', '/dataset/{id}',
             controller='package', action='read', ckan_icon='sitemap')
         return route_map
-
-    # IBlueprint
-
-    def get_blueprint(self):
-        from ckanext.harvester_data_qld_geoscience import blueprints
-        return blueprints.get_blueprints()
