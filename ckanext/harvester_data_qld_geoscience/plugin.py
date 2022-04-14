@@ -3,6 +3,7 @@ import logging
 import six
 import urllib
 import ckan.plugins as plugins
+import ckantoolkit as toolkit
 
 import helpers
 
@@ -17,7 +18,6 @@ except ImportError:
 
 
 log = logging.getLogger(__name__)
-toolkit = plugins.toolkit
 
 
 class GeoScienceCKANHarvester(CKANHarvester):
@@ -27,6 +27,8 @@ class GeoScienceCKANHarvester(CKANHarvester):
     plugins.implements(plugins.IFacets, inherit=True)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IConfigurer)
+    if toolkit.check_ckan_version(max_version='2.8.99'):
+        plugins.implements(plugins.IRoutes, inherit=True)
 
     config = None
 
@@ -270,7 +272,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         Deals with paging to return all the results, not just the first page.
         '''
         base_search_url = remote_ckan_base_url + self._get_search_api_offset()
-        params = {'rows': '100', 'start': '0'}
+        params = {'rows': '1000', 'start': '0'}
         # There is the worry that datasets will be changed whilst we are paging
         # through them.
         # * In SOLR 4.7 there is a cursor, but not using that yet
@@ -332,7 +334,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
 
             # DataQLD Update
             object_ids.extend(self._create_harvest_objects(pkg_dicts_page, harvest_job))
-            break
+
             if len(pkg_dicts_page) == 0:
                 break
 
@@ -372,3 +374,26 @@ class GeoScienceCKANHarvester(CKANHarvester):
             'harvester_data_qld_geoscience_custom_label_function': helpers.custom_label_function,
             'harvester_data_qld_geoscience_custom_label_function_list_dict_filter': helpers.custom_label_function_list_dict_filter,
         }
+
+    # IRoutes
+
+    def before_map(self, route_map):
+        from routes.mapper import SubMapper
+
+        with SubMapper(route_map, controller='package') as mapper:
+            # This is a pain, but re-assigning the dataset_read route using `before_map`
+            # appears to affect these routes, so we need to replicate them here
+            mapper.connect('search', '/dataset', action='search', highlight_actions='index search')
+            mapper.connect('dataset_new', '/dataset/new', action='new')
+            mapper.connect(
+                '/dataset/{action}',
+                requirements=dict(action='|'.join([
+                    'list',
+                    'autocomplete',
+                    'search'
+                ])))
+            mapper.connect('dataset_read', '/dataset/{id}',
+                           action='read', ckan_icon='sitemap')
+            mapper.connect('geoscience_read', '/dataset/{id}',
+                           action='read', ckan_icon='sitemap')
+        return route_map
