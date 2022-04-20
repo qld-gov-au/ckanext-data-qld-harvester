@@ -1,9 +1,14 @@
 {% ckan_extends %}
 
+{% if h.ckan_version() > '2.9' %}
+    {% set facet_args = {'facet': name, 'search_facets': search_facets or c.search_facets} %}
+{% else %}
+    {% set facet_args = {'facet': name} %}
+{% endif %}
 {% block facet_list_items %}
-    {% with items = items or h.get_facet_items_dict(name) %}
+    {% with items = items or h.get_facet_items_dict(**facet_args) %}
     {% if items %}
-      <nav>
+      <nav aria-label="{{ title }}">
         <ul class="{{ nav_class or 'list-unstyled nav nav-simple nav-facet' }}">
           {% for item in items %}
             {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
@@ -24,7 +29,7 @@
 
       <p class="module-footer">
         {% if h.get_param_int('_%s_limit' % name) %}
-          {% if h.has_more_facets(name) %}
+          {% if h.has_more_facets(**facet_args) %}
             <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
           {% endif %}
         {% else %}
