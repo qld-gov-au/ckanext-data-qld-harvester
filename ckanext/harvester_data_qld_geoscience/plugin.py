@@ -393,7 +393,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
                     'search'
                 ])))
 
-        controller = 'ckanext.qgov.common.controller.QGOVController'
+        controller = 'ckanext.qgov.common.controller:QGOVController'
         with SubMapper(route_map, controller=controller) as mapper:
             mapper.connect('dataset_read', '/dataset/{id}',
                            action='read', ckan_icon='sitemap')
