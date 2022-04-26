@@ -10,22 +10,22 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='''ckanext-data-qld-harvester''',
+    name='ckanext-data-qld-harvester',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
     version='0.0.1',
 
-    description='''Custom harvesters for Data.Qld''',
+    description='Custom harvesters for Data.Qld',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com//ckanext-data-qld-harvester',
+    url='https://github.com/qld-gov-au/ckanext-harvest-data-qld-geoscience',
 
     # Author details
-    author='''Salsa Digital on behalf of Data.Qld''',
-    author_email='''''',
+    author='Salsa Digital on behalf of Data.Qld',
+    author_email='',
 
     # Choose your license
     license='AGPL',
@@ -46,9 +46,8 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
 
-
     # What does your project relate to?
-    keywords='''CKAN''',
+    keywords='CKAN',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -66,8 +65,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     include_package_data=True,
-    package_data={
-    },
+    package_data={},
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages.
