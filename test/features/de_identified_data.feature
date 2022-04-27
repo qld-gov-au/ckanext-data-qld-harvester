@@ -1,35 +1,7 @@
 @schema_metadata
-Feature: SchemaMetadata
+Feature: De-identified data
 
-
-    Scenario: When a go to the dataset new page, the field field-author_email should not be visible
-        Given "SysAdmin" as the persona
-        When I log in
-        And I go to "/dataset/new"
-        Then I should see an element with id "field-author_email"
-
-    Scenario: When a go to the dataset new page, the field field-maintainer_email should not be visible
-        Given "SysAdmin" as the persona
-        When I log in
-        And I go to "/dataset/new"
-        Then I should not see an element with id "field-maintainer_email"
-
-    Scenario: When I create a resource without a name or description, I should see errors
-        Given "SysAdmin" as the persona
-        When I log in
-        And I go to "/dataset/new_resource/warandpeace"
-        And I execute the script "document.getElementById('field-image-url').value='https://example.com'"
-        And I press the element with xpath "//button[contains(string(), 'Add')]"
-        Then I should see "Name: Missing value"
-        And I should see "Description: Missing value"
-
-    Scenario: When viewing the HTML source code of a dataset page, the structured data script is visible
-        Given "SysAdmin" as the persona
-        When I log in
-        When I go to "/dataset/warandpeace"
-        Then I should see an element with xpath "//link[@type='application/ld+json']"
-
-    Scenario Outline: Check value of de_identified_data dropdown field
+    Scenario Outline: An editor, admin or sysadmin user, when I go to the dataset new page, the field field-de_identified_data should be visible with the correct values
         Given "<User>" as the persona
         When I log in
         And I go to "/dataset/new"
@@ -48,7 +20,7 @@ Feature: SchemaMetadata
             | TestOrgEditor |
 
 
-    Scenario Outline: Edit existing dataset, field de_identified_data value should be NO
+    Scenario Outline: An editor, admin or sysadmin user, when I go to the edit dataset page, the field field-de_identified_data should be visible with the correct values
         Given "<User>" as the persona
         When I log in
         And I go to "/dataset/edit/warandpeace"
@@ -62,7 +34,7 @@ Feature: SchemaMetadata
             | TestOrgAdmin  |
             | TestOrgEditor |
 
-    Scenario Outline: When viewing existing dataset, field de_identified_data should be NO
+    Scenario Outline: An editor, admin or sysadmin user can view the de-identified data
         Given "<User>" as the persona
         When I log in
 
@@ -79,7 +51,7 @@ Feature: SchemaMetadata
             | TestOrgAdmin  |
             | TestOrgEditor |
 
-    Scenario: Non logged-in user should not see de_identified_data value.
+    Scenario: Unauthenticated user cannot view the de-identified data
         Given "Unauthenticated" as the persona
         When I go to "/dataset/warandpeace"
         Then I should not see "Contains de-identified data"
