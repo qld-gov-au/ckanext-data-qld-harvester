@@ -1,11 +1,11 @@
 import datetime
 import logging
 import six
-import urllib
+from six.moves.urllib.parse import urlencode
 import ckan.plugins as plugins
 import ckantoolkit as toolkit
 
-import helpers
+from . import helpers
 
 from ckanext.harvest.harvesters.ckanharvester import CKANHarvester, ContentFetchError, SearchError
 from ckan.lib.helpers import json
@@ -298,7 +298,7 @@ class GeoScienceCKANHarvester(CKANHarvester):
         pkg_ids = set()
         previous_content = None
         while True:
-            url = base_search_url + '?' + urllib.urlencode(params)
+            url = base_search_url + '?' + urlencode(params)
             log.debug('Searching for CKAN datasets: %s', url)
             try:
                 content = self._get_content(url)
