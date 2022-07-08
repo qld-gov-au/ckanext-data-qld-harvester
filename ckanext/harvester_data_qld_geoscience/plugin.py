@@ -5,7 +5,7 @@ from six.moves.urllib.parse import urlencode
 import ckan.plugins as plugins
 import ckantoolkit as toolkit
 
-import helpers
+from . import helpers
 
 from ckanext.harvest.harvesters.ckanharvester import CKANHarvester, ContentFetchError, SearchError
 from ckan.lib.helpers import json
