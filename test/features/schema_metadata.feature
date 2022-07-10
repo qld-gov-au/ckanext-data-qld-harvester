@@ -1,7 +1,6 @@
 @schema_metadata
 Feature: SchemaMetadata
 
-
     Scenario: When a go to the dataset new page, the field field-author_email should not be visible
         Given "SysAdmin" as the persona
         When I log in
@@ -23,9 +22,9 @@ Feature: SchemaMetadata
         Then I should see "Name: Missing value"
         And I should see "Description: Missing value"
 
+    @unauthenticated
     Scenario: When viewing the HTML source code of a dataset page, the structured data script is visible
-        Given "SysAdmin" as the persona
-        When I log in
+        Given "Unauthenticated" as the persona
         When I go to "/dataset/warandpeace"
         Then I should see an element with xpath "//link[@type='application/ld+json']"
 
@@ -36,17 +35,14 @@ Feature: SchemaMetadata
         Then I should see an element with id "field-de_identified_data"
         Then I should see an element with xpath "//select[@id='field-de_identified_data']/option[@value='YES']"
         Then I should see an element with xpath "//select[@id='field-de_identified_data']/option[@value='NO']"
-        Then I should see an element with xpath "//select[@id='field-de_identified_data']/option[@value='']"
         Then I should not see an element with xpath "//select[@id='field-de_identified_data']/option[@selected='' and  @value='YES']"
         Then I should not see an element with xpath "//select[@id='field-de_identified_data']/option[@selected='' and  @value='NO']"
-        Then I should not see an element with xpath "//select[@id='field-de_identified_data']/option[@selected='' and  @value='']"
 
         Examples: Users
             | User          |
             | SysAdmin      |
             | TestOrgAdmin  |
             | TestOrgEditor |
-
 
     Scenario Outline: Edit existing dataset, field de_identified_data value should be NO
         Given "<User>" as the persona
@@ -79,6 +75,7 @@ Feature: SchemaMetadata
             | TestOrgAdmin  |
             | TestOrgEditor |
 
+    @unauthenticated
     Scenario: Non logged-in user should not see de_identified_data value.
         Given "Unauthenticated" as the persona
         When I go to "/dataset/warandpeace"
