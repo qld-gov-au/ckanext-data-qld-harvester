@@ -19,7 +19,7 @@ Feature: GoogleAnalytics
         And I should see an element with xpath "//meta[@name='DCTERMS.jurisdiction' and @content='Queensland' and @scheme='AGLSTERMS.AglsJuri']"
         And I should see an element with xpath "//meta[@name='DCTERMS.type' and @content='Text' and @scheme='DCTERMS.DCMIType']"
         And I should see an element with xpath "//meta[@name='AGLSTERMS.documentType' and @content='index']"
-    
+
         When I click the link with text that contains "Dave's books"
         And I click the link with text that contains "About"
         Then I should see an element with xpath "//meta[@name='DCTERMS.title' and contains(@content, 'Dave')]"

@@ -4,7 +4,7 @@
 #
 set -e
 
-. ${APP_DIR}/scripts/activate
+. ${APP_DIR}/bin/activate
 CLICK_ARGS="--yes" ckan_cli db clean
 ckan_cli db init
 ckan_cli db upgrade
@@ -28,4 +28,4 @@ PASTER_PLUGIN=ckanext-report ckan_cli report initdb
 PASTER_PLUGIN=ckanext-qa ckan_cli qa init
 
 # Create some base test data
-. $APP_DIR/scripts/create-test-data.sh
+. $APP_DIR/bin/create-test-data.sh
