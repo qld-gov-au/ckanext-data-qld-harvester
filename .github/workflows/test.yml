@@ -11,13 +11,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ckan-version: [ckan-2.8.8-qgov.5, ckan-2.9.5-qgov.7]
+        ckan-version: [2.9, 2.9-py2, 2.8]
 
     name: Continuous Integration build on CKAN ${{ matrix.ckan-version }}
     runs-on: ubuntu-latest
     container: integratedexperts/ci-builder
     env:
-      CKAN_REPO: qld-gov-au/ckan
       CKAN_VERSION: ${{ matrix.ckan-version }}
 
     steps:
@@ -25,16 +24,16 @@ jobs:
         timeout-minutes: 2
 
       - name: Build
-        run: .circleci/build.sh
+        run: bin/build.sh
         timeout-minutes: 15
 
       - name: Test
-        run: .circleci/test.sh
+        run: bin/test.sh
         timeout-minutes: 30
 
       - name: Retrieve screenshots
         if: failure()
-        run: .circleci/process-artifacts.sh
+        run: bin/process-artifacts.sh
         timeout-minutes: 1
 
       - name: Upload screenshots

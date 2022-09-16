@@ -272,5 +272,6 @@
       "display_snippet": null,
       "validators": "ignore_missing unicode_safe"
     }
-  ]
+  ],
+  "resource_fields": []
 }
