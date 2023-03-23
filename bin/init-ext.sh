@@ -27,9 +27,10 @@ install_requirements () {
 
 . ${APP_DIR}/bin/activate
 
-install_requirements . dev-requirements requirements-dev extensions
+install_requirements . dev-requirements requirements-dev
 for extension in . `ls -d $SRC_DIR/ckanext-*`; do
     install_requirements $extension requirements pip-requirements
+    install_requirements $extension extensions
 done
 pip install -e .
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
