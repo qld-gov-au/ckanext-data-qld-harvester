@@ -27,7 +27,7 @@ install_requirements () {
 
 . ${APP_DIR}/bin/activate
 
-install_requirements . dev-requirements requirements-dev
+install_requirements . dev-requirements requirements-dev extensions
 for extension in . `ls -d $SRC_DIR/ckanext-*`; do
     install_requirements $extension requirements pip-requirements
 done
