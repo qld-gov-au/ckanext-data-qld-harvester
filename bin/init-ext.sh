@@ -7,6 +7,13 @@ set -e
 install_requirements () {
     PROJECT_DIR=$1
     shift
+
+    #ckanext-data-qld and possibly others who also have extensions.txt
+    filename="$PROJECT_DIR/extensions.txt"
+    if [ -f "$filename" ]; then
+        pip install -r "$filename"
+    fi
+
     # Identify the best match requirements file, ignore the others.
     # If there is one specific to our Python version, use that.
     for filename_pattern in "$@"; do
@@ -23,6 +30,8 @@ install_requirements () {
             return 0
         fi
     done
+
+
 }
 
 . ${APP_DIR}/bin/activate
@@ -30,7 +39,6 @@ install_requirements () {
 install_requirements . dev-requirements requirements-dev
 for extension in . `ls -d $SRC_DIR/ckanext-*`; do
     install_requirements $extension requirements pip-requirements
-    install_requirements $extension extensions
 done
 pip install -e .
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
