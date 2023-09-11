@@ -1,4 +1,17 @@
+@theme
 Feature: Theme customisations
+
+    @unauthenticated
+    Scenario: As a member of the public, when I go to the consistent asset URLs, I can see the asset
+        Given "Unauthenticated" as the persona
+        When I visit "/assets/css/main"
+        Then I should see "Bootstrap"
+        When I visit "/assets/css/font-awesome"
+        Then I should see "Font Awesome"
+        When I visit "/assets/css/select2"
+        Then I should see "select2-container"
+        When I visit "/assets/js/jquery"
+        Then I should see "jQuery"
 
     @unauthenticated
     Scenario: Lato font is implemented on homepage
@@ -17,9 +30,10 @@ Feature: Theme customisations
         Given "SysAdmin" as the persona
         When I log in
         And I go to organisation page
-        And I click the link with text that contains "Add Organisation"
+        And I press "Add Organisation"
         Then I should see "Create an Organisation"
-        When I fill in "title" with "Org without description"
+        When I execute the script "$('#field-name').val('Org without description')"
+        And I execute the script "$('#field-url').val('org-without-description')"
         And I press the element with xpath "//button[contains(@class, 'btn-primary')]"
         Then I should see "Org without description"
         And I should see "No datasets found"
@@ -29,9 +43,10 @@ Feature: Theme customisations
         Given "SysAdmin" as the persona
         When I log in
         And I go to organisation page
-        And I click the link with text that contains "Add Organisation"
+        And I press "Add Organisation"
         Then I should see "Create an Organisation"
-        When I fill in "title" with "Org with description"
+        When I execute the script "$('#field-name').val('Org with description')"
+        And I execute the script "$('#field-url').val('org-with-description')"
         And I fill in "description" with "Some description or other"
         And I press the element with xpath "//button[contains(@class, 'btn-primary')]"
         Then I should see "Org with description"
@@ -42,16 +57,17 @@ Feature: Theme customisations
     @unauthenticated
     Scenario: Explore button does not exist on dataset detail page
         Given "Unauthenticated" as the persona
-        When I go to dataset page
-        And I click the link with text that contains "A Wonderful Story"
+        When I go to dataset "public-test-dataset"
         Then I should not see "Explore"
 
     @unauthenticated
-    Scenario: Explore button does not exist on dataset detail page
+    Scenario: As a member of the public, I should be able to see the help text on the organisation page
+        Given "Unauthenticated" as the persona
         When I go to organisation page
         Then I should see "Organisations are Queensland Government departments, other agencies or legislative entities responsible for publishing open data on this portal."
 
     Scenario: Register user password must be 10 characters or longer
+        Given "Unauthenticated" as the persona
         When I go to register page
         And I fill in "name" with "name"
         And I fill in "fullname" with "fullname"
@@ -62,6 +78,7 @@ Feature: Theme customisations
         Then I should see "Password: Your password must be 10 characters or longer"
 
     Scenario: Register user password must contain at least one number, lowercase letter, capital letter, and symbol
+        Given "Unauthenticated" as the persona
         When I go to register page
         And I fill in "name" with "name"
         And I fill in "fullname" with "fullname"
@@ -71,18 +88,21 @@ Feature: Theme customisations
         And I press "Create Account"
         Then I should see "Password: Must contain at least one number, lowercase letter, capital letter, and symbol"
 
+    @OpenData
     Scenario: As a publisher, when I create a resource with an API entry, I can download it in various formats
         Given "TestOrgEditor" as the persona
         When I log in
-        And I create a dataset with license "other-open" and "CSV" resource file "csv_resource.csv"
+        And I create a dataset and resource with key-value parameters "license=other-open" and "format=CSV::upload=csv_resource.csv"
         And I wait for 10 seconds
-        And I click the link with text that contains "Test Resource"
-        Then I should see an element with xpath "//a[contains(@class, 'resource-btn') and contains(@href, '/download/csv_resource.csv') and contains(string(), '(CSV)')]"
-        When I press the element with xpath "//button[@data-toggle='dropdown']"
+        And I press "Test Resource"
+        Then I should see an element with xpath "//a[contains(string(), 'Data API')]"
+        And I should see an element with xpath "//button[contains(@class, 'dropdown-toggle')]"
+        And I should see an element with xpath "//a[contains(@class, 'resource-btn') and contains(@href, '/download/csv_resource.csv') and contains(string(), '(CSV)')]"
+        When I press the element with xpath "//button[contains(@class, 'dropdown-toggle')]"
         Then I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(string(), 'CSV')]"
-        Then I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(@href, 'format=tsv') and contains(string(), 'TSV')]"
-        Then I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(@href, 'format=json') and contains(string(), 'JSON')]"
-        Then I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(@href, 'format=xml') and contains(string(), 'XML')]"
+        And I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(@href, 'format=tsv') and contains(string(), 'TSV')]"
+        And I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(@href, 'format=json') and contains(string(), 'JSON')]"
+        And I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(@href, 'format=xml') and contains(string(), 'XML')]"
 
     @unauthenticated
     Scenario: When I encounter a 'resource not found' error page, it has a custom message

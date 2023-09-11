@@ -1,105 +1,104 @@
 @resource_visibility
+@OpenData
 Feature: Re-identification risk governance acknowledgement or Resource visibility
 
-    Scenario: Sysadmin creates datasets with de_identified_data, resource_visible and governance_acknowledgement values to test resource visibility feature
-        Given "SysAdmin" as the persona
+    Scenario: As a publisher, I can view hidden resources
+        Given "TestOrgEditor" as the persona
         When I log in
-        And I create resource_availability test data with title:"Contains de-identified data YES visibility TRUE acknowledgment NO" de_identified_data:"YES" resource_name:"Hide Resource" resource_visible:"TRUE" governance_acknowledgement:"NO"
-        And I create resource_availability test data with title:"Contains de-identified data NO visibility TRUE acknowledgment NO" de_identified_data:"NO" resource_name:"Show Resource" resource_visible:"TRUE" governance_acknowledgement:"NO"
-        And I create resource_availability test data with title:"Contains de-identified data NO visibility FALSE acknowledgment NO" de_identified_data:"NO" resource_name:"Hide Resource" resource_visible:"FALSE" governance_acknowledgement:"NO"
-        And I create resource_availability test data with title:"Contains de-identified data YES visibility TRUE acknowledgment YES" de_identified_data:"NO" resource_name:"Show Resource" resource_visible:"TRUE" governance_acknowledgement:"NO"
+        And I create a dataset and resource with key-value parameters "name=package-with-invisible-resource::notes=Package with invisible resource::de_identified_data=NO" and "name=invisible-resource::resource_visible=FALSE"
+        Then I should see "invisible-resource"
+        And I should see "HIDDEN"
+        When I press "invisible-resource"
+        # Check that we made it to the resource page
+        Then I should see "Resource visible"
+        And I should see "HIDDEN"
 
-
-    Scenario Outline: Organisation users should see a hidden resource when de-identified data is YES and Resource visibility is TRUE and Acknowledgement is NO
-        Given "<User>" as the persona
-        When I log in
-        And I go to "/dataset/contains-de-identified-data-yes-visibility-true-acknowledgment-no"
-        And I press the element with xpath "//a[@title='Hide Resource']"
-        Then I should see an element with xpath "//th[contains(text(), 'Resource visible')]"
-        And I should see an element with xpath "//th[contains(text(), 'Re-identification risk governance completed?')]"
-
-        Examples: Users
-            | User          |
-            | SysAdmin      |
-            | TestOrgAdmin  |
-            | TestOrgEditor |
-
-    Scenario: Unauthenticated user should not see a hidden resource when de-identified data is YES and Resource visibility is TRUE and Acknowledgement is NO
-        Given "Unauthenticated" as the persona
-        When I go to "/dataset/contains-de-identified-data-yes-visibility-true-acknowledged-no"
-        Then I should not see an element with xpath "//a[@title='Hide Resource']"
-
-    Scenario Outline: Organisation users should see a visible resource when de-identified data is NO and Resource visibility is TRUE and Acknowledgement is NO
-        Given "<User>" as the persona
+        Given "CKANUser" as the persona
+        When I log out
         And I log in
-        And I go to "/dataset/contains-de-identified-data-no-visibility-true-acknowledgment-no"
-        And I press the element with xpath "//a[@title='Show Resource']"
-        Then I should see an element with xpath "//th[contains(text(), 'Resource visible')]"
-        And I should see an element with xpath "//th[contains(text(), 'Re-identification risk governance completed?')]"
+        And I go to dataset "package-with-invisible-resource"
+        Then I should see "Package with invisible resource"
+        And I should not see "invisible-resource"
 
-        Examples: Users
-            | User          |
-            | SysAdmin      |
-            | TestOrgAdmin  |
-            | TestOrgEditor |
-
-    Scenario: Unauthenticated user should see a visible resource when de-identified data is NO and Resource visibility is TRUE and Acknowledgement is NO
-        Given "Unauthenticated" as the persona
-        When I go to "/dataset/contains-de-identified-data-no-visibility-true-acknowledgment-no"
-        And I press the element with xpath "//a[@title='Show Resource']"
-        Then I should not see an element with xpath "//th[contains(text(), 'Resource visible')]"
-        And I should not see an element with xpath "//th[contains(text(), 'Re-identification risk governance completed?')]"
-
-    Scenario Outline: Organisation users should see a hidden resource when de-identified data is NO and Resource visibility is FALSE and Acknowledgement is NO
-        Given "<User>" as the persona
+    Scenario: As an unprivileged user, I cannot see resources with privacy assessment requested and risk governance completed
+        Given "TestOrgEditor" as the persona
         When I log in
-        And I go to "/dataset/contains-de-identified-data-no-visibility-false-acknowledgment-no"
-        And I press the element with xpath "//a[@title='Hide Resource']"
-        Then I should see an element with xpath "//th[contains(text(), 'Resource visible')]"
-        And I should see an element with xpath "//th[contains(text(), 'Re-identification risk governance completed?')]"
+        And I create a dataset and resource with key-value parameters "name=package-with-assessed-resource::notes=Package with assessed resource::de_identified_data=NO" and "name=resource-for-assessment::request_privacy_assessment=YES::governance_acknowledgement=YES::resource_visible=TRUE"
+        Then I should see "resource-for-assessment"
 
-        Examples: Users
-            | User          |
-            | SysAdmin      |
-            | TestOrgAdmin  |
-            | TestOrgEditor |
+        Given "CKANUser" as the persona
+        When I log out
+        And I log in
+        And I go to dataset "package-with-assessed-resource"
+        Then I should not see "resource-for-assessment"
 
-    Scenario: Unauthenticated user should not see a hidden visible resource when de-identified data is NO and Resource visibility is FALSE and Acknowledgement is NO
-        Given "Unauthenticated" as the persona
-        When I go to "/dataset/contains-de-identified-data-no-visibility-false-acknowledgment-no"
-        Then I should not see an element with xpath "//a[@title='Hide Resource']"
-
-    Scenario Outline: Organisation users should see a visible resource when de-identified data is YES and Resource visibility is TRUE and Acknowledgement is YES
-        Given "<User>" as the persona
+    Scenario: As an unprivileged user, I can see de-identified resources marked as visible without a privacy assessment
+        Given "TestOrgEditor" as the persona
         When I log in
-        And I go to "/dataset/contains-de-identified-data-yes-visibility-true-acknowledgment-yes"
-        And I press the element with xpath "//a[@title='Show Resource']"
-        Then I should see an element with xpath "//th[contains(text(), 'Resource visible')]"
-        And I should see an element with xpath "//th[contains(text(), 'Re-identification risk governance completed?')]"
+        And I create a dataset and resource with key-value parameters "name=de-identified-package-with-unassessed-resource::de_identified_data=YES" and "name=visible-resource::request_privacy_assessment=NO::governance_acknowledgement=YES::resource_visible=TRUE"
 
-        Examples: Users
-            | User          |
-            | SysAdmin      |
-            | TestOrgAdmin  |
-            | TestOrgEditor |
+        Given "CKANUser" as the persona
+        When I log out
+        And I log in
+        And I go to dataset "de-identified-package-with-unassessed-resource"
+        Then I should see "visible-resource"
 
-    Scenario: Unauthenticated user should see a visible resource when de-identified data is YES and Resource visibility is TRUE and Acknowledgement is YES
-        Given "Unauthenticated" as the persona
-        When I go to "/dataset/contains-de-identified-data-yes-visibility-true-acknowledgment-yes"
-        And I press the element with xpath "//a[@title='Show Resource']"
-        Then I should not see an element with xpath "//th[contains(text(), 'Resource visible')]"
-        And I should not see an element with xpath "//th[contains(text(), 'Re-identification risk governance completed?')]"
+        When I log out
+        And I go to dataset "de-identified-package-with-unassessed-resource"
+        Then I should see "visible-resource"
 
-    Scenario Outline: Create resource and verify default values are set correct for resource visibility
-        Given "<User>" as the persona
-        When I create a resource with name "Resource created by <User> with default values" and URL "https://example.com"
-        And I press the element with xpath "//a[@title='Resource created by <User> with default values']"
-        Then I should not see "Visibility/Governance Acknowledgment"
-        And I should see an element with xpath "//th[contains(text(), 'Resource visible')]/following-sibling::td[contains(text(), 'TRUE')]"
-        And I should see an element with xpath "//th[contains(text(), 'Re-identification risk governance completed?')]/following-sibling::td[contains(text(), 'NO')]"
+    Scenario: As an unprivileged user, I cannot see de-identified resources with an incomplete privacy assessment
+        Given "TestOrgEditor" as the persona
+        When I log in
+        And I create a dataset and resource with key-value parameters "name=de-identified-package-with-partially-assessed-resource::de_identified_data=YES" and "name=invisible-resource::request_privacy_assessment=YES::governance_acknowledgement=NO::resource_visible=TRUE"
+        Then I should see "invisible-resource"
 
-        Examples: Users
-            | User          |
-            | SysAdmin      |
-            | TestOrgAdmin  |
-            | TestOrgEditor |
+        Given "CKANUser" as the persona
+        When I log out
+        And I log in
+        And I go to dataset "de-identified-package-with-partially-assessed-resource"
+        Then I should not see "invisible-resource"
+
+        When I log out
+        And I go to dataset "de-identified-package-with-partially-assessed-resource"
+        Then I should not see "invisible-resource"
+
+    Scenario: As an unprivileged user, I cannot see de-identified resources
+        Given "TestOrgEditor" as the persona
+        When I log in
+        And I create a dataset and resource with key-value parameters "name=de-identified-package-with-assessed-resource::de_identified_data=YES" and "name=invisible-resource::request_privacy_assessment=YES::governance_acknowledgement=YES::resource_visible=TRUE"
+        Then I should see "invisible-resource"
+
+        Given "CKANUser" as the persona
+        When I log out
+        And I log in
+        And I go to dataset "random_package"
+        Then I should not see "invisible-resource"
+
+    Scenario: As a publisher, when I edit a resource, I can set its visibility
+        Given "TestOrgEditor" as the persona
+        When I log in
+        And I create a dataset and resource with key-value parameters "de_identified_data=NO" and "name=invisible-resource::resource_visible=FALSE"
+        Then I should see "HIDDEN"
+        When I press "invisible-resource"
+        Then I should see "HIDDEN"
+        When I press "Manage"
+        Then I should not see an element with xpath "//label[@for="field-request_privacy_assessment"]//*[@class="control-required"]"
+        And I should see an element with xpath "//select[@id="field-request_privacy_assessment"]//option[@value="" or @value="YES" or @value="NO"]"
+        And I should see "Privacy risk assessment prior to public release might assist the publishing decision-making process"
+        And I should see an element with xpath "//a[contains(@href, 'download') and contains(string(), 'Privacy assessment guidance')]"
+
+        When I press the element with xpath "//button[string()='Update Resource']"
+        Then I should see an element with xpath "//th[string()='Request privacy assessment']/following-sibling::td[not(string())]"
+
+    Scenario: As an anonymous user, I can see resources without de-identified data
+        Given "TestOrgEditor" as the persona
+        When I log in
+        And I create a dataset and resource with key-value parameters "name=package-without-de-identified-data::de_identified_data=NO" and "name=visible-resource::governance_acknowledgement=NO::resource_visible=TRUE"
+
+        When I log out
+        And I go to dataset "package-without-de-identified-data"
+        Then I should not see "HIDDEN"
+        And I should see "visible-resource"
+        When I click the link with text that contains "visible-resource"
+        Then I should not see "HIDDEN"
