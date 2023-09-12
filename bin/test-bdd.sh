@@ -4,4 +4,5 @@
 #
 set -ex
 
-ahoy test-unit
+ahoy install-site
+ahoy test-bdd
