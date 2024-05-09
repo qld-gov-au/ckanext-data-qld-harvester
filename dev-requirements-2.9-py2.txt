@@ -32,3 +32,6 @@ progressbar==2.5
 -e git+https://github.com/qld-gov-au/ckanext-ytp-comments.git@2.5.0-qgov.15#egg=ckanext-ytp-comments
 -e git+https://github.com/qld-gov-au/ckanext-resource-visibility.git@2.1.1#egg=ckanext-resource-visibility
 -e git+https://github.com/qld-gov-au/ckanext-validation-schema-generator.git@develop#egg=ckanext-validation-schema-generator
+certifi>=2023.7.22 # not directly required, pinned by Snyk to avoid a vulnerability
+idna>=3.7 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.31.0 # not directly required, pinned by Snyk to avoid a vulnerability
