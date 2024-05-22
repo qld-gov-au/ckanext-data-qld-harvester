@@ -1,6 +1,6 @@
 ckantoolkit>=0.0.4
 pika>=1.1.0,<1.3.0
 redis
-requests>=2.11.1
+requests>=2.32.0
 six>=1.12.0
 ckanext-harvest
