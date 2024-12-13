@@ -9,6 +9,7 @@ mock
 pytest-ckan
 selenium<4.10
 six>=1.13.0
+typer<0.11 # We still need Click 7 for now
 xlrd==1.2.0
 python-magic==0.4.18
 progressbar==2.5
