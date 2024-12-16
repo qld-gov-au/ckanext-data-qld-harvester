@@ -1,5 +1,6 @@
 @comments
 @OpenData
+@multi_plugin
 Feature: Comments
 
     @unauthenticated
@@ -30,7 +31,7 @@ Feature: Comments
 
     @comment-add @datarequest
     Scenario: When a logged-in user submits a comment on a Data Request the comment should then be visible on the Comments tab of the Data Request
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in
         And I create a datarequest
         And I go to data request "$last_generated_title" comments
@@ -40,7 +41,7 @@ Feature: Comments
 
     @comment-add @datarequest @email
     Scenario: When a logged-in user submits a comment on a Data Request the email should contain title and comment
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in
         And I create a datarequest
         And I go to data request "$last_generated_title" comments
@@ -71,7 +72,7 @@ Feature: Comments
 
     @comment-add @comment-profane @datarequest
     Scenario: When a logged-in user submits a comment containing profanity on a Data Request they should receive an error message and the comment will not appear
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in
         And I create a datarequest
         And I go to data request "$last_generated_title" comments
@@ -96,7 +97,7 @@ Feature: Comments
 
     @comment-report @datarequest @email
     Scenario: When a logged-in user reports a comment on a Data Request the comment should be marked as reported and an email notification sent to the organisation admins
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in
         And I create a datarequest
         And I go to data request "$last_generated_title" comments
