@@ -1,5 +1,7 @@
+@OpenData
 Feature: Search facets
 
+    @unauthenticated
     Scenario: When I go to the dataset list page, I can see the 'Data Portals' facet
         Given "Unauthenticated" as the persona
         When I go to dataset page

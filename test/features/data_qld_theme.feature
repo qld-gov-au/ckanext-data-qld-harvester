@@ -105,6 +105,17 @@ Feature: Theme customisations
         And I should see an element with xpath "//a[contains(@href, '/datastore/dump/') and contains(@href, 'format=xml') and contains(string(), 'XML')]"
 
     @unauthenticated
+    @OpenData
+    Scenario: Open Data - Menu items are present and correct
+        Given "Unauthenticated" as the persona
+        When I go to dataset page
+        Then I should see an element with xpath "//li[contains(@class, 'active')]/a[contains(string(), 'Data') and (@href='/dataset' or @href='/dataset/')]"
+        And I should see an element with xpath "//li[not(contains(@class, 'active'))]/a[contains(string(), 'Visualisations') and @href='/visualisations']"
+        And I should see an element with xpath "//li[not(contains(@class, 'active'))]/a[contains(string(), 'News and Case Studies') and @href='/news-and-case-studies']"
+        And I should see an element with xpath "//li[not(contains(@class, 'active'))]/a[contains(string(), 'Standards and guidance') and @href='/article/standards-and-guidance']"
+        And I should see an element with xpath "//li[not(contains(@class, 'active'))]/a[contains(string(), 'Contact') and @href='/article/contact']"
+
+    @unauthenticated
     Scenario: When I encounter a 'resource not found' error page, it has a custom message
         Given "Unauthenticated" as the persona
         When I go to "/dataset/nonexistent/resource/nonexistent"

@@ -11,10 +11,7 @@ from ckanext.harvest.harvesters.ckanharvester import CKANHarvester, ContentFetch
 from ckan.lib.helpers import json
 from ckan import model
 from ckanext.harvest.model import HarvestObject
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
+from collections import OrderedDict
 
 
 log = logging.getLogger(__name__)
