@@ -30,7 +30,7 @@ ckan.plugins = <OTHER_PLUGINS> harvest harvester_data_qld_geoscience
   - [Pygmy](https://pygmy.readthedocs.io/)
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
 
-- Build the test container for your preferred CKAN version: '2.9' or '2.10'.
+- Build the test container:
 ```
 CKAN_VERSION=2.10 bin/build.sh
 ```
