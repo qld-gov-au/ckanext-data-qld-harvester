@@ -30,9 +30,13 @@ ckan.plugins = <OTHER_PLUGINS> harvest harvester_data_qld_geoscience
   - [Pygmy](https://pygmy.readthedocs.io/)
   - [Ahoy](https://github.com/ahoy-cli/ahoy)
 
-- Build the test container for your preferred CKAN version: '2.8', '2.9-py2', or '2.9'.
+- Build the test container:
 ```
-CKAN_VERSION=2.9 .circleci/build.sh
+CKAN_VERSION=2.10 bin/build.sh
 ```
 
-- Run tests: `.circleci/test.sh`
+- Run tests:
+```
+bin/test.sh
+bin/test.sh
+```
